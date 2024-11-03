@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -42,6 +43,18 @@ func walk(target string, allFlag bool) []FileInfo {
 	return result
 }
 
+func printEntry(ent FileInfo) {
+	fmt.Printf("%s ",ent.name)
+}
+
 func main() {
 	flag.Parse()
+	target := "."
+	if len(flag.Arg(0)) > 0 {
+		target = flag.Arg(0)
+	}
+	for _, item := range walk(target, allFlag) {
+		printEntry(item)
+	}
+	print("\n")
 }
