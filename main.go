@@ -22,10 +22,10 @@ func init() {
 }
 
 type FileInfo struct {
-	name string
+	name       string
 	permission string
-	owner string
-	group string
+	owner      string
+	group      string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -40,10 +40,10 @@ func walk(target string, allFlag bool) []FileInfo {
 		}
 
 		info := FileInfo{
-			name: ent.Name(),
+			name:       ent.Name(),
 			permission: ent.Mode().String(),
-			owner: getOwner(ent),
-			group: getGroup(ent),
+			owner:      getOwner(ent),
+			group:      getGroup(ent),
 		}
 
 		result = append(result, info)
@@ -87,7 +87,7 @@ func printEntry(ent FileInfo) {
 		groupWidth = len(ent.group)
 	}
 
-	fmt.Printf("%s %-*s %-*s %s\n",ent.permission,ownerWith,ent.owner,groupWidth,ent.group,ent.name)
+	fmt.Printf("%s %-*s %-*s %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, ent.name)
 }
 
 func main() {
