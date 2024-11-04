@@ -4,7 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
+	"strconv"
 	"strings"
+	"syscall"
 )
 
 var allFlag bool
@@ -21,6 +24,7 @@ func init() {
 type FileInfo struct {
 	name string
 	permission string
+	owner string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -37,6 +41,7 @@ func walk(target string, allFlag bool) []FileInfo {
 		info := FileInfo{
 			name: ent.Name(),
 			permission: ent.Mode().String(),
+			owner: getOwner(ent),
 		}
 
 		result = append(result, info)
@@ -45,8 +50,25 @@ func walk(target string, allFlag bool) []FileInfo {
 	return result
 }
 
+func getOwner(file os.FileInfo) string {
+	if s, ok := file.Sys().(*syscall.Stat_t); ok {
+		uid := strconv.Itoa(int(s.Uid))
+		userInfo, err := user.LookupId(uid)
+		if err == nil {
+			return userInfo.Username
+		}
+
+	}
+	return ""
+}
+
+var ownerWith = 0
+
 func printEntry(ent FileInfo) {
-	fmt.Printf("%s %s \n",ent.permission,ent.name)
+	if ownerWith < len(ent.owner) {
+		ownerWith = len(ent.owner)
+	}
+	fmt.Printf("%s %-*s %s\n",ent.permission,ownerWith,ent.owner,ent.name)
 }
 
 func main() {
