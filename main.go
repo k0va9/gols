@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 var allFlag bool
@@ -30,6 +31,9 @@ type FileInfo struct {
 	owner      string
 	group      string
 	size       string
+	date	   time.Time
+	isDir      bool
+	nlink      uint64
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -49,6 +53,9 @@ func walk(target string, allFlag bool) []FileInfo {
 			owner:      getOwner(ent),
 			group:      getGroup(ent),
 			size:       strconv.FormatInt(ent.Size(), 10),
+			date: 	    ent.ModTime(),
+			isDir:      ent.IsDir(),
+			nlink:      getNlink(ent),
 		}
 
 		// caluclate padding width
@@ -93,8 +100,7 @@ func getGroup(file os.FileInfo) string {
 }
 
 func printEntry(ent FileInfo) {
-
-	fmt.Printf("%s %-*s %-*s %*s %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, blocksizeWidth, ent.size, ent.name)
+	fmt.Printf("%s %-*s %-*s %*s %s %2d %02d:%02d %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, blocksizeWidth, ent.size, ent.date.Month().String()[:3], ent.date.Day(), ent.date.Hour(), ent.date.Minute(), ent.name)
 }
 
 func main() {
