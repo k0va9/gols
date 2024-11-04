@@ -25,6 +25,7 @@ type FileInfo struct {
 	name string
 	permission string
 	owner string
+	group string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -42,6 +43,7 @@ func walk(target string, allFlag bool) []FileInfo {
 			name: ent.Name(),
 			permission: ent.Mode().String(),
 			owner: getOwner(ent),
+			group: getGroup(ent),
 		}
 
 		result = append(result, info)
@@ -62,13 +64,30 @@ func getOwner(file os.FileInfo) string {
 	return ""
 }
 
+func getGroup(file os.FileInfo) string {
+	if s, ok := file.Sys().(*syscall.Stat_t); ok {
+		gid := strconv.Itoa(int(s.Gid))
+		groupInfo, err := user.LookupGroupId(gid)
+		if err == nil {
+			return groupInfo.Name
+		}
+
+	}
+	return ""
+}
+
 var ownerWith = 0
+var groupWidth = 0
 
 func printEntry(ent FileInfo) {
 	if ownerWith < len(ent.owner) {
 		ownerWith = len(ent.owner)
 	}
-	fmt.Printf("%s %-*s %s\n",ent.permission,ownerWith,ent.owner,ent.name)
+	if groupWidth < len(ent.group) {
+		groupWidth = len(ent.group)
+	}
+
+	fmt.Printf("%s %-*s %-*s %s\n",ent.permission,ownerWith,ent.owner,groupWidth,ent.group,ent.name)
 }
 
 func main() {
