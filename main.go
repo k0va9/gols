@@ -15,6 +15,7 @@ var helpFlag bool
 var longFlag bool
 var ownerWith int
 var groupWidth int
+var blocksizeWidth int
 
 func init() {
 	flag.BoolVar(&allFlag, "all", false, "")
@@ -28,6 +29,7 @@ type FileInfo struct {
 	permission string
 	owner      string
 	group      string
+	size       string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -46,6 +48,7 @@ func walk(target string, allFlag bool) []FileInfo {
 			permission: ent.Mode().String(),
 			owner:      getOwner(ent),
 			group:      getGroup(ent),
+			size:       strconv.FormatInt(ent.Size(), 10),
 		}
 
 		// caluclate padding width
@@ -54,6 +57,9 @@ func walk(target string, allFlag bool) []FileInfo {
 		}
 		if groupWidth < len(info.group) {
 			groupWidth = len(info.group)
+		}
+		if blocksizeWidth < len(info.size) {
+			blocksizeWidth = len(info.size)
 		}
 
 		result = append(result, info)
@@ -87,7 +93,8 @@ func getGroup(file os.FileInfo) string {
 }
 
 func printEntry(ent FileInfo) {
-	fmt.Printf("%s %-*s %-*s %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, ent.name)
+
+	fmt.Printf("%s %-*s %-*s %*s %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, blocksizeWidth, ent.size, ent.name)
 }
 
 func main() {
