@@ -20,6 +20,7 @@ func init() {
 
 type FileInfo struct {
 	name string
+	permission string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -35,6 +36,7 @@ func walk(target string, allFlag bool) []FileInfo {
 
 		info := FileInfo{
 			name: ent.Name(),
+			permission: ent.Mode().String(),
 		}
 
 		result = append(result, info)
@@ -44,7 +46,7 @@ func walk(target string, allFlag bool) []FileInfo {
 }
 
 func printEntry(ent FileInfo) {
-	fmt.Printf("%s ",ent.name)
+	fmt.Printf("%s %s \n",ent.permission,ent.name)
 }
 
 func main() {
