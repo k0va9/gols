@@ -13,6 +13,8 @@ import (
 var allFlag bool
 var helpFlag bool
 var longFlag bool
+var ownerWith int
+var groupWidth int
 
 func init() {
 	flag.BoolVar(&allFlag, "all", false, "")
@@ -46,6 +48,14 @@ func walk(target string, allFlag bool) []FileInfo {
 			group:      getGroup(ent),
 		}
 
+		// caluclate padding width
+		if ownerWith < len(info.owner) {
+			ownerWith = len(info.owner)
+		}
+		if groupWidth < len(info.group) {
+			groupWidth = len(info.group)
+		}
+
 		result = append(result, info)
 	}
 
@@ -76,17 +86,7 @@ func getGroup(file os.FileInfo) string {
 	return ""
 }
 
-var ownerWith = 0
-var groupWidth = 0
-
 func printEntry(ent FileInfo) {
-	if ownerWith < len(ent.owner) {
-		ownerWith = len(ent.owner)
-	}
-	if groupWidth < len(ent.group) {
-		groupWidth = len(ent.group)
-	}
-
 	fmt.Printf("%s %-*s %-*s %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, ent.name)
 }
 
