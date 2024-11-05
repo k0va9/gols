@@ -28,15 +28,15 @@ func init() {
 }
 
 type FileInfo struct {
-	name       string
-	permission string
-	owner      string
-	group      string
-	size       string
-	date	   time.Time
-	isDir      bool
-	nlink      uint64
-	isSymLink  bool
+	name         string
+	permission   string
+	owner        string
+	group        string
+	size         string
+	date         time.Time
+	isDir        bool
+	nlink        uint64
+	isSymLink    bool
 	resolvedPath string
 }
 
@@ -52,20 +52,20 @@ func walk(target string, allFlag bool) []FileInfo {
 		}
 
 		info := FileInfo{
-			name:       ent.Name(),
-			permission: ent.Mode().String(),
-			owner:      getOwner(ent),
-			group:      getGroup(ent),
-			size:       strconv.FormatInt(ent.Size(), 10),
-			isDir:      ent.IsDir(),
-			nlink:      getNlink(ent),
-			isSymLink:  false,
+			name:         ent.Name(),
+			permission:   ent.Mode().String(),
+			owner:        getOwner(ent),
+			group:        getGroup(ent),
+			size:         strconv.FormatInt(ent.Size(), 10),
+			isDir:        ent.IsDir(),
+			nlink:        getNlink(ent),
+			isSymLink:    false,
 			resolvedPath: "",
 		}
 
 		if ent.Mode()&fs.ModeSymlink != 0 {
 
-			p,err := os.Readlink(path.Join(target,ent.Name()))
+			p, err := os.Readlink(path.Join(target, ent.Name()))
 			info.isSymLink = true
 			if err != nil {
 				panic(err)
@@ -128,7 +128,7 @@ func printEntName(ent FileInfo) {
 		fmt.Printf("\x1b[34m%s\x1b[0m  ", ent.name)
 	} else if ent.isSymLink {
 		fmt.Printf("\x1b[36m%s\x1b[0m -> %s", ent.name, ent.resolvedPath)
-	}else {
+	} else {
 		fmt.Printf("%s ", ent.name)
 	}
 }
