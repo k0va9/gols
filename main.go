@@ -99,8 +99,30 @@ func getGroup(file os.FileInfo) string {
 	return ""
 }
 
-func printEntry(ent FileInfo) {
-	fmt.Printf("%s %-*s %-*s %*s %s %2d %02d:%02d %s\n", ent.permission, ownerWith, ent.owner, groupWidth, ent.group, blocksizeWidth, ent.size, ent.date.Month().String()[:3], ent.date.Day(), ent.date.Hour(), ent.date.Minute(), ent.name)
+func printEntName(ent FileInfo) {
+	if ent.isDir {
+		fmt.Printf("\x1b[34m%s\x1b[0m  ", ent.name)
+	} else {
+		fmt.Printf("%s ", ent.name)
+	}
+}
+
+func printOwnerInfo(ent FileInfo) {
+	fmt.Printf("%-*s %-*s ", ownerWith, ent.owner, groupWidth, ent.group)
+}
+
+func printPermission(ent FileInfo) {
+	fmt.Print(ent.permission + " ")
+}
+
+func printNlink(ent FileInfo) {
+	fmt.Printf("%d ", ent.nlink)
+}
+func printSize(ent FileInfo) {
+	fmt.Printf("%*s ", blocksizeWidth, ent.size)
+}
+func printModDate(ent FileInfo) {
+	fmt.Printf("%s %2d %02d:%02d ", ent.date.Month().String()[:3], ent.date.Day(), ent.date.Hour(), ent.date.Minute())
 }
 
 func main() {
@@ -110,7 +132,18 @@ func main() {
 		target = flag.Arg(0)
 	}
 	for _, item := range walk(target, allFlag) {
-		printEntry(item)
+		if longFlag {
+			printPermission(item)
+			printNlink(item)
+			printOwnerInfo(item)
+			printSize(item)
+			printModDate(item)
+			printEntName(item)
+			print("\n")
+		} else {
+			printEntName(item)
+			print("  ")
+		}
 	}
 	print("\n")
 }
