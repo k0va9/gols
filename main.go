@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/user"
+	"path"
 	"strconv"
 	"strings"
 	"syscall"
@@ -34,6 +36,8 @@ type FileInfo struct {
 	date	   time.Time
 	isDir      bool
 	nlink      uint64
+	isSymLink  bool
+	resolvedPath string
 }
 
 func walk(target string, allFlag bool) []FileInfo {
@@ -55,6 +59,18 @@ func walk(target string, allFlag bool) []FileInfo {
 			size:       strconv.FormatInt(ent.Size(), 10),
 			isDir:      ent.IsDir(),
 			nlink:      getNlink(ent),
+			isSymLink:  false,
+			resolvedPath: "",
+		}
+
+		if ent.Mode()&fs.ModeSymlink != 0 {
+
+			p,err := os.Readlink(path.Join(target,ent.Name()))
+			info.isSymLink = true
+			if err != nil {
+				panic(err)
+			}
+			info.resolvedPath = p
 		}
 
 		// caluclate padding width
@@ -110,7 +126,9 @@ func getGroup(file os.FileInfo) string {
 func printEntName(ent FileInfo) {
 	if ent.isDir {
 		fmt.Printf("\x1b[34m%s\x1b[0m  ", ent.name)
-	} else {
+	} else if ent.isSymLink {
+		fmt.Printf("\x1b[36m%s\x1b[0m -> %s", ent.name, ent.resolvedPath)
+	}else {
 		fmt.Printf("%s ", ent.name)
 	}
 }
@@ -120,7 +138,7 @@ func printOwnerInfo(ent FileInfo) {
 }
 
 func printPermission(ent FileInfo) {
-	fmt.Print(ent.permission + " ")
+	fmt.Print(strings.ToLower(ent.permission) + " ")
 }
 
 func printNlink(ent FileInfo) {
