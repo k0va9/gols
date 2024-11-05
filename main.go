@@ -53,7 +53,6 @@ func walk(target string, allFlag bool) []FileInfo {
 			owner:      getOwner(ent),
 			group:      getGroup(ent),
 			size:       strconv.FormatInt(ent.Size(), 10),
-			date: 	    ent.ModTime(),
 			isDir:      ent.IsDir(),
 			nlink:      getNlink(ent),
 		}
@@ -73,6 +72,15 @@ func walk(target string, allFlag bool) []FileInfo {
 	}
 
 	return result
+}
+
+func getNlink(file os.FileInfo) uint64 {
+	if s, ok := file.Sys().(*syscall.Stat_t); ok {
+		return s.Nlink
+
+	}
+
+	return 0
 }
 
 func getOwner(file os.FileInfo) string {
