@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"os/user"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -65,7 +65,7 @@ func walk(target string, allFlag bool) []FileInfo {
 
 		if ent.Mode()&fs.ModeSymlink != 0 {
 
-			p, err := os.Readlink(path.Join(target, ent.Name()))
+			p, err := os.Readlink(filepath.Join(target, ent.Name()))
 			info.isSymLink = true
 			if err != nil {
 				panic(err)
